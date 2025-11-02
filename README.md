@@ -97,6 +97,29 @@ The gearhead3.2 model is configured with:
 
 See [Modelfile](Modelfile) for complete configuration details.
 
+## Deploying to Streamlit Cloud
+
+**Important:** Streamlit Community Cloud doesn't support running Ollama directly. You need to run Ollama on a separate server.
+
+### Quick Deployment Steps:
+
+1. **Set up Ollama on a server** (see [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions)
+   - Option A: Use a cloud VM ($5-12/month)
+   - Option B: Run on your local machine (for testing only)
+
+2. **Configure environment variable:**
+   - In Streamlit Cloud settings → Secrets, add:
+   ```toml
+   OLLAMA_HOST = "https://your-ollama-server.com"
+   ```
+
+3. **Deploy to Streamlit Cloud:**
+   - Push code to GitHub
+   - Connect repo at [share.streamlit.io](https://share.streamlit.io)
+   - App will connect to your Ollama server
+
+For complete deployment instructions, see **[DEPLOYMENT.md](DEPLOYMENT.md)**.
+
 ## Troubleshooting
 
 ### Model Not Found

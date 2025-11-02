@@ -38,6 +38,9 @@ st.markdown("*Your AI-powered mobile equipment diagnostics and troubleshooting e
 MODEL_NAME = "gearhead3.2"
 CONTEXT_WINDOW = 8192  # From Modelfile
 
+# Ollama configuration - can be overridden with environment variable
+OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
+
 # Helper functions for audio
 def transcribe_audio(audio_bytes):
     """Convert audio bytes to text using speech recognition"""
@@ -109,8 +112,11 @@ if "last_response" not in st.session_state:
 # Initialize session state for model availability
 if "model_available" not in st.session_state:
     try:
+        # Configure Ollama client with custom host
+        client = ollama.Client(host=OLLAMA_HOST)
+
         # Check if the model is available
-        models = ollama.list()
+        models = client.list()
         # Access 'model' key from the model dictionary (not 'name')
         model_list = models.get('models', []) if isinstance(models, dict) else models['models']
         st.session_state.model_available = any(
@@ -119,7 +125,7 @@ if "model_available" not in st.session_state:
         )
     except Exception as e:
         st.session_state.model_available = False
-        st.error(f"Error connecting to Ollama: {str(e)}")
+        st.error(f"Error connecting to Ollama at {OLLAMA_HOST}: {str(e)}")
 
 # Sidebar with information and controls
 with st.sidebar:
@@ -274,8 +280,11 @@ if prompt := st.chat_input("Ask about mobile equipment diagnostics and troublesh
             response_metadata = None
 
             try:
+                # Configure Ollama client with custom host
+                client = ollama.Client(host=OLLAMA_HOST)
+
                 # Stream the response from Ollama
-                stream = ollama.chat(
+                stream = client.chat(
                     model=MODEL_NAME,
                     messages=[
                         {"role": m["role"], "content": m["content"]}
