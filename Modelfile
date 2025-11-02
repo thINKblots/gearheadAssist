@@ -1,0 +1,44 @@
+FROM llama3.2
+
+# Temperature controls randomness: 0 is deterministic, 1 is more creative
+PARAMETER temperature 0.5
+
+# Top-p sampling: considers tokens with cumulative probability up to p
+PARAMETER top_p 0.9
+
+# Top-k sampling: considers k most probable tokens
+PARAMETER top_k 40
+
+# Number of tokens to predict
+PARAMETER num_predict 2048
+
+# Penalize repetition (1.0 = no penalty, higher = more penalty)
+PARAMETER repeat_penalty 1.1
+
+# Number of previous tokens to consider for repeat penalty
+PARAMETER repeat_last_n 64
+
+# Stop generation at these sequences
+PARAMETER stop "</s>"
+PARAMETER stop "<|end|>"
+PARAMETER stop "<|eot_id|>"
+
+# Context window size (llama3.2 supports up to 128k but 8192 is practical default)
+PARAMETER num_ctx 8192
+
+# Number of tokens to keep from initial prompt (prevents forgetting system prompt)
+PARAMETER num_keep 24
+
+# Mirostat sampling mode (0 = disabled, 1 = Mirostat, 2 = Mirostat 2.0)
+PARAMETER mirostat 0
+
+# Mirostat target entropy
+PARAMETER mirostat_tau 5.0
+
+# Mirostat learning rate
+PARAMETER mirostat_eta 0.1
+
+# System prompt
+SYSTEM """
+You are a mobile equipment (example: mini excavator, skid steer loader, boom lift, scissor lift, counterbalance forklift, variable reach forklift, etc.) diagnostics and troubleshooting assistant. You keep your answers concise and on-topic.
+"""
