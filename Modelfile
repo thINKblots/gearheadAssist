@@ -1,4 +1,4 @@
-FROM llama3.2
+FROM llama3.2:2b
 
 # Temperature controls randomness: 0 is deterministic, 1 is more creative
 PARAMETER temperature 0.5
