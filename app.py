@@ -8,6 +8,10 @@ import io
 import os
 import tempfile
 import base64
+from pinecone_utils import PineconeRAG
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Page configuration
 st.set_page_config(
@@ -37,6 +41,13 @@ st.markdown("*Your AI-powered mobile equipment diagnostics and troubleshooting e
 # Model configuration
 MODEL_NAME = "gearhead3.2"
 CONTEXT_WINDOW = 8192  # From Modelfile
+
+try:
+    rag = PineconeRAG()
+    RAG_ENABLED = True
+except Exception as e:
+    st.warning(f"RAG not available: {e}")
+    RAG_ENABLED = False
 
 # Ollama configuration - can be overridden with environment variable
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
@@ -137,6 +148,16 @@ with st.sidebar:
     else:
         st.error(f"❌ Model '{MODEL_NAME}' not found")
         st.info("Please ensure Ollama is running and the model is created:\n```bash\nollama create gearhead3.2 -f Modelfile\n```")
+
+    st.divider()
+
+    # RAG Settings
+    st.subheader("RAG Settings")
+    use_rag = st.toggle("🔍 Use Knowledge Base", value=True) if RAG_ENABLED else False
+    if use_rag:
+        top_k = st.slider("Documents to retrieve", 1, 5, 3)
+    else:
+        top_k = 3  # Default value when RAG is disabled
 
     st.divider()
 
@@ -283,13 +304,44 @@ if prompt := st.chat_input("Ask about mobile equipment diagnostics and troublesh
                 # Configure Ollama client with custom host
                 client = ollama.Client(host=OLLAMA_HOST)
 
+                # Build messages for the model
+                messages_for_model = []
+
+                # If RAG is enabled, retrieve context
+                if use_rag and RAG_ENABLED:
+                    with st.spinner("🔍 Searching knowledge base..."):
+                        # Get relevant documents
+                        retrieved_docs = rag.query(prompt, top_k=top_k)
+
+                        if retrieved_docs:
+                            # Build context from retrieved documents
+                            context = "\n\n".join([
+                                f"[Source {i+1}, Relevance: {doc['score']:.2f}]\n{doc['text']}"
+                                for i, doc in enumerate(retrieved_docs)
+                            ])
+
+                            # Create system message with context
+                            system_message = {
+                                "role": "system",
+                                "content": f"""You are a mobile equipment diagnostics expert. Use the following relevant information from the knowledge base to help answer the question:
+
+{context}
+
+If the above context is relevant, use it in your answer. If not, rely on your training."""
+                            }
+
+                            messages_for_model.append(system_message)
+
+                # Add conversation history
+                messages_for_model.extend([
+                    {"role": m["role"], "content": m["content"]}
+                    for m in st.session_state.messages
+                ])
+
                 # Stream the response from Ollama
                 stream = client.chat(
                     model=MODEL_NAME,
-                    messages=[
-                        {"role": m["role"], "content": m["content"]}
-                        for m in st.session_state.messages
-                    ],
+                    messages=messages_for_model,
                     stream=True
                 )
 
