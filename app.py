@@ -38,7 +38,7 @@ st.title("🔧 Gearhead Assist")
 st.markdown("*Your AI-powered mobile equipment diagnostics and troubleshooting expert*")
 
 # Model configuration
-MODEL_NAME = "gearhead3.1:8b"
+MODEL_NAME = "gearhead8b"
 CONTEXT_WINDOW = 8192  # From Modelfile
 
 try:
@@ -146,7 +146,7 @@ with st.sidebar:
         st.success(f"✅ Model '{MODEL_NAME}' is ready")
     else:
         st.error(f"❌ Model '{MODEL_NAME}' not found")
-        st.info("Please ensure Ollama is running and the model is created:\n```bash\nollama create gearhead3.1:8b -f Modelfile\n```")
+        st.info("Please ensure Ollama is running and the model is created:\n```bash\nollama create gearhead8b -f Modelfile\n```")
 
     st.divider()
 
@@ -381,7 +381,7 @@ st.divider()
 st.markdown(
     """
     <div style='text-align: center; color: #666; font-size: 0.9em;'>
-    Powered by Ollama and Streamlit | Model: gearhead3.1:8b
+    Powered by Ollama and Streamlit | Model: gearhead8b
     </div>
     """,
     unsafe_allow_html=True

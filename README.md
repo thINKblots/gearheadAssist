@@ -23,7 +23,7 @@ A Streamlit-powered chat interface for mobile equipment diagnostics and troubles
 
 - Python 3.8 or higher
 - [Ollama](https://ollama.ai/) installed and running
-- The gearhead3.1:8b model created in Ollama
+- The gearhead8b model created in Ollama
 
 ## Setup
 
@@ -33,10 +33,10 @@ If you haven't already, install Ollama from [https://ollama.ai/](https://ollama.
 
 ### 2. Create the Custom Model
 
-Create the gearhead3.1:8b model using the provided Modelfile:
+Create the gearhead8b model using the provided Modelfile:
 
 ```bash
-ollama create gearhead3.1:8b -f Modelfile
+ollama create gearhead8b -f Modelfile
 ```
 
 Verify the model was created:
@@ -45,7 +45,7 @@ Verify the model was created:
 ollama list
 ```
 
-You should see `gearhead3.1:8b` in the list of available models.
+You should see `gearhead8b` in the list of available models.
 
 ### 3. Install Python Dependencies
 
@@ -102,7 +102,7 @@ The app will open in your default web browser at `http://localhost:8501`
 
 ## Model Configuration
 
-The gearhead3.1:8b model is configured with:
+The gearhead8b model is configured with:
 - Base model: llama3.1:8b
 - Temperature: 0.5 (balanced creativity)
 - Context window: 8192 tokens
@@ -137,9 +137,9 @@ For complete deployment instructions, see **[DEPLOYMENT.md](DEPLOYMENT.md)**.
 
 ### Model Not Found
 
-If you see "Model 'gearhead3.1:8b' not found":
+If you see "Model 'gearhead8b' not found":
 1. Ensure Ollama is running
-2. Create the model: `ollama create gearhead3.1:8b -f Modelfile`
+2. Create the model: `ollama create gearhead8b -f Modelfile`
 3. Restart the Streamlit app
 
 ### Connection Error
