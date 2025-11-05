@@ -1,6 +1,6 @@
 #!/bin/bash
 # Setup script for Ollama server on Ubuntu/Debian VMs
-# Run this on your cloud VM to set up Ollama with the gearhead3.2 model
+# Run this on your cloud VM to set up Ollama with the gearhead3.1:8b model
 
 set -e
 
@@ -48,16 +48,16 @@ if [ ! -f "Modelfile" ]; then
     exit 1
 fi
 
-# Create the gearhead3.2 model
+# Create the gearhead3.1:8b model
 echo ""
-echo "🤖 Creating gearhead3.2 model..."
-ollama create gearhead3.2 -f Modelfile
+echo "🤖 Creating gearhead3.1:8b model..."
+ollama create gearhead3.1:8b -f Modelfile
 echo "✅ Model created successfully"
 
 # Test the model
 echo ""
 echo "🧪 Testing model..."
-ollama run gearhead3.2 "test" --verbose
+ollama run gearhead3.1:8b "test" --verbose
 echo "✅ Model test complete"
 
 # Display server info
@@ -70,7 +70,7 @@ echo "Your Ollama server is running at:"
 echo "  Internal: http://localhost:11434"
 echo "  External: http://$(hostname -I | awk '{print $1}'):11434"
 echo ""
-echo "Model available: gearhead3.2"
+echo "Model available: gearhead3.1:8b"
 echo ""
 echo "Next steps:"
 echo "1. Set up HTTPS with Nginx (recommended for production)"

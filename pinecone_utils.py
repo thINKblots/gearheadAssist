@@ -75,7 +75,7 @@ class PineconeRAG:
         """
         if not self.index:
             return []
-        
+
         query_embedding = self.embed_text(question)
 
         results = self.index.query(
@@ -92,5 +92,53 @@ class PineconeRAG:
                 "text": match.metadata.get("text", ""),
                 "metadata": match.metadata
             })
-        
+
         return matches
+
+    def format_citation(self, doc: Dict, index: int) -> str:
+        """
+        Format a citation with PDF link that opens to specific page
+
+        Expected metadata fields:
+        - source or filename: PDF filename or path
+        - page or page_number: Page number (int)
+        - pdf_url or path: URL or path to PDF file
+        - title: Optional document title
+        """
+        metadata = doc.get("metadata", {})
+
+        # Support both 'source' and 'filename' fields
+        source = metadata.get("source") or metadata.get("filename", "Unknown Source")
+
+        # Support both 'page' and 'page_number' fields
+        page = metadata.get("page") or metadata.get("page_number", 1)
+
+        # Convert page to int if it's a float
+        if isinstance(page, float):
+            page = int(page)
+
+        # Get PDF URL - check pdf_url first, then construct from path or use base URL
+        pdf_url = metadata.get("pdf_url", "")
+
+        # If no pdf_url but we have a path, try to construct URL
+        if not pdf_url and metadata.get("path"):
+            path = metadata.get("path")
+            # If BASE_PDF_URL is set in environment, use it to construct full URL
+            base_url = os.getenv("BASE_PDF_URL", "")
+            if base_url:
+                # Remove 'pdfs/' prefix if it exists in path
+                filename = path.replace("pdfs/", "")
+                pdf_url = f"{base_url.rstrip('/')}/{filename}"
+
+        # Use title if available, otherwise use source/filename
+        title = metadata.get("title", source)
+
+        # Create PDF link with page anchor
+        # PDF links use #page=N to jump to specific page
+        if pdf_url:
+            citation_link = f"{pdf_url}#page={page}"
+            citation = f"[{title}, p.{page}]({citation_link})"
+        else:
+            citation = f"{title}, p.{page}"
+
+        return citation

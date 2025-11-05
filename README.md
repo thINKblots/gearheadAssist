@@ -1,11 +1,13 @@
 # GearHead Assistant
 
-A Streamlit-powered chat interface for mobile equipment diagnostics and troubleshooting, using a custom Ollama model based on llama3.2.
+A Streamlit-powered chat interface for mobile equipment diagnostics and troubleshooting, using a custom Ollama model based on llama3.1:8b.
 
 ## Features
 
 - Interactive chat interface for equipment diagnostics
 - Streaming responses for real-time feedback
+- RAG (Retrieval Augmented Generation) with Pinecone vector database
+- Clickable citations linking to source PDF documents
 - Chat history management
 - Example prompts for common questions
 - Specialized knowledge for:
@@ -21,7 +23,7 @@ A Streamlit-powered chat interface for mobile equipment diagnostics and troubles
 
 - Python 3.8 or higher
 - [Ollama](https://ollama.ai/) installed and running
-- The gearhead3.2 model created in Ollama
+- The gearhead3.1:8b model created in Ollama
 
 ## Setup
 
@@ -31,10 +33,10 @@ If you haven't already, install Ollama from [https://ollama.ai/](https://ollama.
 
 ### 2. Create the Custom Model
 
-Create the gearhead3.2 model using the provided Modelfile:
+Create the gearhead3.1:8b model using the provided Modelfile:
 
 ```bash
-ollama create gearhead3.2 -f Modelfile
+ollama create gearhead3.1:8b -f Modelfile
 ```
 
 Verify the model was created:
@@ -43,7 +45,7 @@ Verify the model was created:
 ollama list
 ```
 
-You should see `gearhead3.2` in the list of available models.
+You should see `gearhead3.1:8b` in the list of available models.
 
 ### 3. Install Python Dependencies
 
@@ -58,6 +60,17 @@ Or install them individually:
 ```bash
 pip install streamlit ollama
 ```
+
+### 4. Configure PDF Citations (Optional)
+
+To enable clickable PDF citations, set the base URL where your PDFs are hosted:
+
+```bash
+# Add to .env file
+BASE_PDF_URL=https://your-pdf-hosting-url.com/pdfs
+```
+
+See [PDF_HOSTING_GUIDE.md](PDF_HOSTING_GUIDE.md) for detailed instructions on hosting PDFs.
 
 ## Running the App
 
@@ -89,8 +102,8 @@ The app will open in your default web browser at `http://localhost:8501`
 
 ## Model Configuration
 
-The gearhead3.2 model is configured with:
-- Base model: llama3.2:2b
+The gearhead3.1:8b model is configured with:
+- Base model: llama3.1:8b
 - Temperature: 0.5 (balanced creativity)
 - Context window: 8192 tokens
 - Specialized system prompt for mobile equipment diagnostics
@@ -124,9 +137,9 @@ For complete deployment instructions, see **[DEPLOYMENT.md](DEPLOYMENT.md)**.
 
 ### Model Not Found
 
-If you see "Model 'gearhead3.2' not found":
+If you see "Model 'gearhead3.1:8b' not found":
 1. Ensure Ollama is running
-2. Create the model: `ollama create gearhead3.2 -f Modelfile`
+2. Create the model: `ollama create gearhead3.1:8b -f Modelfile`
 3. Restart the Streamlit app
 
 ### Connection Error
@@ -145,4 +158,4 @@ If responses are slow:
 
 ## License
 
-This project uses the llama3.2 model, which has its own license terms. Please review Ollama's and Meta's licensing for commercial use.
+This project uses the llama3.1:8b model, which has its own license terms. Please review Ollama's and Meta's licensing for commercial use.

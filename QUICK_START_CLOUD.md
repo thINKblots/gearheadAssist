@@ -140,7 +140,7 @@ curl http://localhost:11434/api/tags
 ollama list
 
 # Recreate model
-ollama create gearhead3.2 -f Modelfile
+ollama create gearhead3.1:8b -f Modelfile
 ```
 
 ### Streamlit app shows error

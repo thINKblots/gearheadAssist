@@ -1,6 +1,5 @@
 import streamlit as st
 import ollama
-from typing import Generator
 from streamlit_mic_recorder import mic_recorder
 import speech_recognition as sr
 from gtts import gTTS
@@ -39,7 +38,7 @@ st.title("🔧 Gearhead Assist")
 st.markdown("*Your AI-powered mobile equipment diagnostics and troubleshooting expert*")
 
 # Model configuration
-MODEL_NAME = "gearhead3.2"
+MODEL_NAME = "gearhead3.1:8b"
 CONTEXT_WINDOW = 8192  # From Modelfile
 
 try:
@@ -147,7 +146,7 @@ with st.sidebar:
         st.success(f"✅ Model '{MODEL_NAME}' is ready")
     else:
         st.error(f"❌ Model '{MODEL_NAME}' not found")
-        st.info("Please ensure Ollama is running and the model is created:\n```bash\nollama create gearhead3.2 -f Modelfile\n```")
+        st.info("Please ensure Ollama is running and the model is created:\n```bash\nollama create gearhead3.1:8b -f Modelfile\n```")
 
     st.divider()
 
@@ -177,34 +176,8 @@ with st.sidebar:
     # Calculate usage percentage
     usage_percent = (st.session_state.total_tokens / CONTEXT_WINDOW) * 100 if st.session_state.total_tokens > 0 else 0
 
-    # Progress bar with color based on usage
-    if usage_percent < 60:
-        bar_color = "normal"
-    elif usage_percent < 80:
-        bar_color = "normal"  # Streamlit doesn't support color change directly
-    else:
-        bar_color = "normal"
-
-    st.progress(min(usage_percent / 100, 1.0))
-
-    col1, col2 = st.columns(2)
-    with col1:
-        st.metric("Tokens Used", f"{st.session_state.total_tokens:,}")
-    with col2:
-        st.metric("Remaining", f"{max(0, CONTEXT_WINDOW - st.session_state.total_tokens):,}")
-
-    st.caption(f"Context Window: {CONTEXT_WINDOW:,} tokens ({usage_percent:.1f}% used)")
-
-    if usage_percent > 80:
-        st.warning("⚠️ Context usage is high. Consider clearing chat history soon.")
-    elif usage_percent > 90:
-        st.error("🚨 Context nearly full! Clear chat history to continue.")
-
-    # Token breakdown (expandable)
-    with st.expander("Token Details"):
-        st.write(f"**Prompt tokens:** {st.session_state.prompt_tokens:,}")
-        st.write(f"**Response tokens:** {st.session_state.completion_tokens:,}")
-        st.write(f"**Messages in history:** {len(st.session_state.messages)}")
+    # Display only percentage
+    st.metric("Usage", f"{usage_percent:.1f}%")
 
     st.divider()
 
@@ -306,6 +279,7 @@ if prompt := st.chat_input("Ask about mobile equipment diagnostics and troublesh
 
                 # Build messages for the model
                 messages_for_model = []
+                citations = []  # Store citations for display
 
                 # If RAG is enabled, retrieve context
                 if use_rag and RAG_ENABLED:
@@ -314,11 +288,15 @@ if prompt := st.chat_input("Ask about mobile equipment diagnostics and troublesh
                         retrieved_docs = rag.query(prompt, top_k=top_k)
 
                         if retrieved_docs:
-                            # Build context from retrieved documents
-                            context = "\n\n".join([
-                                f"[Source {i+1}, Relevance: {doc['score']:.2f}]\n{doc['text']}"
-                                for i, doc in enumerate(retrieved_docs)
-                            ])
+                            # Build context from retrieved documents and citations
+                            context_parts = []
+                            for i, doc in enumerate(retrieved_docs):
+                                context_parts.append(f"[Source {i+1}]\n{doc['text']}")
+                                # Generate citation with PDF link
+                                citation = rag.format_citation(doc, i+1)
+                                citations.append(citation)
+
+                            context = "\n\n".join(context_parts)
 
                             # Create system message with context
                             system_message = {
@@ -355,11 +333,17 @@ If the above context is relevant, use it in your answer. If not, rely on your tr
                     if 'done' in chunk and chunk['done']:
                         response_metadata = chunk
 
-                # Display final response
-                message_placeholder.markdown(full_response)
+                # Append citations to response if available
+                full_response_with_citations = full_response
+                if citations:
+                    citations_text = "\n\n---\n**📚 Sources:**\n" + "\n".join([f"- {c}" for c in citations])
+                    full_response_with_citations = full_response + citations_text
 
-                # Add assistant response to chat history
-                st.session_state.messages.append({"role": "assistant", "content": full_response})
+                # Display final response with citations
+                message_placeholder.markdown(full_response_with_citations)
+
+                # Add assistant response to chat history (with citations)
+                st.session_state.messages.append({"role": "assistant", "content": full_response_with_citations})
 
                 # Store last response for replay
                 st.session_state.last_response = full_response
@@ -397,7 +381,7 @@ st.divider()
 st.markdown(
     """
     <div style='text-align: center; color: #666; font-size: 0.9em;'>
-    Powered by Ollama and Streamlit | Model: gearhead3.2 (llama3.2:2b)
+    Powered by Ollama and Streamlit | Model: gearhead3.1:8b
     </div>
     """,
     unsafe_allow_html=True

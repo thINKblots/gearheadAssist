@@ -2,13 +2,13 @@
 
 ## Overview
 
-Gearhead Assist requires Ollama to run the custom `gearhead3.2` model. Since Streamlit Community Cloud doesn't support Ollama, you need to run Ollama on a separate server and connect to it remotely.
+Gearhead Assist requires Ollama to run the custom `gearhead3.1:8b` model. Since Streamlit Community Cloud doesn't support Ollama, you need to run Ollama on a separate server and connect to it remotely.
 
 ## Architecture
 
 ```
 [Streamlit Cloud App] <--HTTPS--> [Your Ollama Server]
-                                   (running gearhead3.2 model)
+                                   (running gearhead3.1:8b model)
 ```
 
 ## Deployment Options
@@ -80,10 +80,10 @@ Gearhead Assist requires Ollama to run the custom `gearhead3.2` model. Since Str
    scp Modelfile user@your-vm-ip:~/
    ```
 
-4. **Create the gearhead3.2 model:**
+4. **Create the gearhead3.1:8b model:**
    ```bash
    # On the VM
-   ollama create gearhead3.2 -f ~/Modelfile
+   ollama create gearhead3.1:8b -f ~/Modelfile
    ```
 
 5. **Configure Ollama to accept external connections:**
@@ -235,7 +235,7 @@ htop
 
 ### Model Not Found
 - Verify model is created: `ollama list`
-- Recreate model: `ollama create gearhead3.2 -f Modelfile`
+- Recreate model: `ollama create gearhead3.1:8b -f Modelfile`
 
 ### Slow Response
 - Increase VM resources
